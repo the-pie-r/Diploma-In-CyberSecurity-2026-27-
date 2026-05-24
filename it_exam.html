@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Fundamentals Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d47;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 50%);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ===== LOGIN SCREEN ===== */
+  #loginScreen {
+    position: relative; z-index:1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-card::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .exam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .login-title {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .login-sub {
+    font-size: 14px;
+    color: var(--muted2);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  .field {
+    margin-bottom: 1.25rem;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted2);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .field input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
+  .field input::placeholder { color: var(--muted); }
+  .start-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+  }
+  .start-btn:hover { opacity: 0.9; }
+  .start-btn:active { transform: scale(0.98); }
+  .start-btn:disabled { opacity: 0.5; cursor:not-allowed; }
+  .info-strips {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .info-strip {
+    text-align: center;
+  }
+  .info-strip .val {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .info-strip .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .err-msg {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* ===== EXAM SCREEN ===== */
+  #examScreen {
+    display: none;
+    position: relative; z-index:1;
+    min-height: 100vh;
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .student-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .student-name { font-size: 14px; font-weight: 600; }
+  .student-code { font-size: 12px; color: var(--muted2); font-family: 'JetBrains Mono', monospace; }
+
+  .timer-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+  }
+  .timer-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.5; transform:scale(0.8); }
+  }
+  .timer-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 80px;
+  }
+  .timer-value.warn { color: var(--warning); }
+  .timer-value.danger { color: var(--danger); }
+
+  .progress-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted2);
+  }
+  .progress-pill {
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--border);
+    position: sticky;
+    top: 61px;
+    z-index: 99;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  /* Main content */
+  .exam-content {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+  }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 1.5rem 0 1rem;
+    margin-top: 1rem;
+  }
+  .section-number {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(59,130,246,0.15);
+    border: 1px solid rgba(59,130,246,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .section-sub {
+    font-size: 12px;
+    color: var(--muted2);
+    margin-top: 2px;
+  }
+
+  /* Question card */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.2s;
+  }
+  .q-card.answered {
+    border-color: rgba(16,185,129,0.3);
+  }
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .q-num {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted2);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .scenario-tag {
+    display: inline-block;
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--warning);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .options-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .option-item:hover {
+    border-color: rgba(59,130,246,0.4);
+    background: rgba(59,130,246,0.05);
+  }
+  .option-item.selected {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.1);
+  }
+  .option-item input[type=radio] {
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .option-label {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    cursor: pointer;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 13px;
+  }
+
+  /* Floating submit */
+  .float-submit {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 200;
+    background: rgba(10,14,26,0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .answered-count {
+    font-size: 14px;
+    color: var(--muted2);
+  }
+  .answered-count span { color: var(--text); font-weight: 700; }
+  .submit-btn {
+    padding: 12px 32px;
+    background: linear-gradient(135deg, var(--success), #059669);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== RESULT SCREEN ===== */
+  #resultScreen {
+    display: none;
+    position: relative; z-index:1;
+    min-height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 520px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    background: linear-gradient(90deg, var(--success), var(--accent2));
+  }
+  .score-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.5rem;
+    position: relative;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring .score-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .score-number {
+    font-size: 36px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+  }
+  .score-total { font-size: 14px; color: var(--muted2); }
+  .result-name { font-size: 22px; font-weight: 700; margin-bottom: 0.25rem; }
+  .result-code { font-size: 13px; color: var(--muted2); font-family: 'JetBrains Mono', monospace; margin-bottom: 1.5rem; }
+  .grade-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 100px;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  .grade-badge.excellent { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: var(--success); }
+  .grade-badge.good { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.4); color: var(--accent); }
+  .grade-badge.practice { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: var(--warning); }
+  .grade-badge.review { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--danger); }
+  .result-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+  .rstat {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+  }
+  .rstat .rv {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .rstat .rl { font-size: 11px; color: var(--muted2); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .saving-msg {
+    font-size: 13px;
+    color: var(--muted2);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    margin-top: 1rem;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset:0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 0.75rem; }
+  .modal-text { font-size: 14px; color: var(--muted2); line-height: 1.6; margin-bottom: 1.5rem; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-secondary {
+    padding: 10px 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger {
+    padding: 10px 20px;
+    background: var(--danger);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-danger:hover { opacity: 0.85; }
+
+  @media (max-width: 600px) {
+    .login-card { padding: 2rem 1.5rem; }
+    .top-bar { flex-wrap: wrap; gap: 10px; }
+    .info-strips { grid-template-columns: 1fr 1fr 1fr; }
+    .result-card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="exam-badge">📋 Online Examination</div>
+    <div class="login-title">IT Fundamentals<br>Beginner Exam</div>
+    <p class="login-sub">Topics: Networking · SQL · HTML · Linux · Web Server · Cloud (AWS)<br>Enter your details to begin. Timer starts immediately.</p>
+
+    <div class="field">
+      <label>Full Name</label>
+      <input type="text" id="studentName" placeholder="e.g. Rahul Sharma" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Student Code</label>
+      <input type="text" id="studentCode" placeholder="e.g. STU2024001" autocomplete="off">
+    </div>
+    <div class="err-msg" id="loginErr">⚠ Please enter both your name and student code.</div>
+
+    <button class="start-btn" id="startBtn" onclick="startExam()">Start Exam — 2 Hours Timer Begins Now</button>
+
+    <div class="info-strips">
+      <div class="info-strip"><div class="val">50</div><div class="lbl">Questions</div></div>
+      <div class="info-strip"><div class="val">2:00</div><div class="lbl">Hours</div></div>
+      <div class="info-strip"><div class="val">MCQ</div><div class="lbl">Format</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM SCREEN -->
+<div id="examScreen">
+  <div class="top-bar">
+    <div class="student-info">
+      <div class="avatar" id="avatarInitials">?</div>
+      <div>
+        <div class="student-name" id="topName">—</div>
+        <div class="student-code" id="topCode">—</div>
+      </div>
+    </div>
+    <div class="timer-block">
+      <div class="timer-dot" id="timerDot"></div>
+      <div class="timer-value" id="timerDisplay">2:00:00</div>
+    </div>
+    <div class="progress-info">
+      <div class="progress-pill" id="progressPill">0/50</div>
+      Answered
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <div class="exam-content" id="examContent">
+    <!-- Questions injected here -->
+  </div>
+
+  <div class="float-submit">
+    <div class="answered-count">Answered: <span id="answeredCount">0</span>/50</div>
+    <button class="submit-btn" id="submitBtn" onclick="confirmSubmit()">Submit Exam</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen">
+  <div class="result-card">
+    <div class="score-ring">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="58" fill="none" stroke="#1a2235" stroke-width="12"/>
+        <circle cx="70" cy="70" r="58" fill="none" stroke="url(#scoreGrad)" stroke-width="12"
+          stroke-linecap="round" id="scoreCircle" stroke-dasharray="364" stroke-dashoffset="364"/>
+        <defs>
+          <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="score-text">
+        <div class="score-number" id="finalScore">0</div>
+        <div class="score-total">out of 50</div>
+      </div>
+    </div>
+    <div class="result-name" id="resultName">Student</div>
+    <div class="result-code" id="resultCode">Code</div>
+    <div class="grade-badge" id="gradeBadge">—</div>
+    <div class="result-stats">
+      <div class="rstat"><div class="rv" id="rCorrect" style="color:var(--success)">0</div><div class="rl">Correct</div></div>
+      <div class="rstat"><div class="rv" id="rWrong" style="color:var(--danger)">0</div><div class="rl">Wrong</div></div>
+      <div class="rstat"><div class="rv" id="rTime" style="color:var(--accent)">—</div><div class="rl">Time Used</div></div>
+    </div>
+    <div class="saving-msg" id="savingMsg">⏳ Saving result to records...</div>
+  </div>
+</div>
+
+<!-- Confirm Submit Modal -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal-box">
+    <div class="modal-title">Submit Exam?</div>
+    <p class="modal-text" id="modalText">You have answered <strong id="modalAnswered">0</strong>/50 questions. Are you sure you want to submit? This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Review Answers</button>
+      <button class="btn-danger" onclick="submitExam()">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEETDB_API = 'https://sheetdb.io/api/v1/ah03kvxas3w5g';
+const EXAM_DURATION = 2 * 60 * 60; // 2 hours in seconds
+
+const QUESTIONS = [
+  // SECTION 1 - NETWORKING
+  { id:1, section:"Section 1 — Networking Basics", sectionNum:1, scenario:false,
+    q:"What does IP stand for?",
+    opts:["Internet Processor","Internet Protocol","Internal Program","Input Port"], ans:1 },
+  { id:2, section:null, scenario:false,
+    q:"Which device connects multiple computers in a network and sends data to the correct device?",
+    opts:["Monitor","Printer","Switch","Scanner"], ans:2 },
+  { id:3, section:null, scenario:false,
+    q:"What is the purpose of DNS?",
+    opts:["To store files online","To convert website names (like google.com) into IP addresses","To speed up your internet","To block viruses"], ans:1 },
+  { id:4, section:null, scenario:false,
+    q:"Which port number is used by HTTP (normal websites)?",
+    opts:["21","22","80","443"], ans:2 },
+  { id:5, section:null, scenario:true,
+    q:"You type www.amazon.com in your browser and it opens the Amazon website. Which protocol is responsible for loading that webpage?",
+    opts:["FTP","SSH","HTTP/HTTPS","SMTP"], ans:2 },
+  { id:6, section:null, scenario:false,
+    q:"What does a firewall do?",
+    opts:["Speeds up the internet","Stores website data","Filters and controls incoming and outgoing network traffic","Connects Wi-Fi to devices"], ans:2 },
+  { id:7, section:null, scenario:false,
+    q:"What is an IP address used for?",
+    opts:["To name a website","To uniquely identify a device on a network","To store passwords","To send emails"], ans:1 },
+  { id:8, section:null, scenario:true,
+    q:"Your company has 50 computers. All of them are connected to the same building network. What type of network is this?",
+    opts:["WAN (Wide Area Network)","LAN (Local Area Network)","MAN (Metropolitan Area Network)","VPN"], ans:1 },
+
+  // SECTION 2 - SQL
+  { id:9, section:"Section 2 — SQL Basics", sectionNum:2, scenario:false,
+    q:"What does SQL stand for?",
+    opts:["Simple Query Language","Structured Query Language","System Query Logic","Sequential Question Language"], ans:1 },
+  { id:10, section:null, scenario:false,
+    q:"Which SQL command is used to get data from a table?",
+    opts:["GET","FETCH","SELECT","PULL"], ans:2 },
+  { id:11, section:null, scenario:false,
+    q:"Which SQL command is used to add a new row to a table?",
+    opts:["ADD","UPDATE","INSERT INTO","CREATE"], ans:2 },
+  { id:12, section:null, scenario:true,
+    q:"You have a table called students. You want to see all the students. Which query is correct?",
+    opts:["SHOW ALL FROM students","GET * FROM students","SELECT * FROM students","DISPLAY students"], ans:2 },
+  { id:13, section:null, scenario:false,
+    q:"What does the WHERE clause do in SQL?",
+    opts:["Deletes a record","Filters results based on a condition","Sorts the output","Joins two tables"], ans:1 },
+  { id:14, section:null, scenario:false,
+    q:"Which command removes all rows from a table but keeps the table structure?",
+    opts:["DROP TABLE","DELETE","TRUNCATE","REMOVE"], ans:2 },
+  { id:15, section:null, scenario:false,
+    q:"What is a PRIMARY KEY in a database?",
+    opts:["The first column in any table","A key used to lock the database","A unique identifier for each row in a table","A password for the database"], ans:2 },
+  { id:16, section:null, scenario:true,
+    q:"You want to update the email of a user whose id is 5 in the users table. Which query is correct?",
+    opts:["CHANGE users SET email='new@mail.com' WHERE id=5","UPDATE users SET email='new@mail.com' WHERE id=5","MODIFY users email='new@mail.com' WHERE id=5","ALTER users SET email='new@mail.com' WHERE id=5"], ans:1 },
+
+  // SECTION 3 - HTML
+  { id:17, section:"Section 3 — HTML Basics", sectionNum:3, scenario:false,
+    q:"What does HTML stand for?",
+    opts:["High Text Markup Language","HyperText Markup Language","Home Tool Markup Language","Hyperlink Text Modeling Language"], ans:1 },
+  { id:18, section:null, scenario:false,
+    q:"Which tag is used to create the largest heading in HTML?",
+    opts:["<h6>","<heading>","<head>","<h1>"], ans:3 },
+  { id:19, section:null, scenario:false,
+    q:"Which HTML tag is used to create a hyperlink (clickable link)?",
+    opts:["<link>","<url>","<a href=\"...\">","<click>"], ans:2 },
+  { id:20, section:null, scenario:true,
+    q:"You are building a webpage and want to display an image called cat.jpg. Which HTML tag do you use?",
+    opts:["<picture src=\"cat.jpg\">","<image href=\"cat.jpg\">","<img src=\"cat.jpg\">","<photo=\"cat.jpg\">"], ans:2 },
+  { id:21, section:null, scenario:false,
+    q:"What is the correct structure of an HTML page?",
+    opts:["<body> → <html> → <head>","<head> → <body> → <html>","<html> → <head> → <body>","<html> → <body> → <head>"], ans:2 },
+  { id:22, section:null, scenario:false,
+    q:"Which tag is used to create an unordered (bulleted) list?",
+    opts:["<ol>","<list>","<ul>","<bl>"], ans:2 },
+  { id:23, section:null, scenario:false,
+    q:"What does the <title> tag do in HTML?",
+    opts:["Displays a big title on the page","Sets the name shown on the browser tab","Creates a heading","Adds a logo to the page"], ans:1 },
+  { id:24, section:null, scenario:true,
+    q:"A developer writes <p>Hello World</p>. What will appear on the webpage?",
+    opts:["<p>Hello World</p> as plain text","Nothing","Hello World as a paragraph","An error"], ans:2 },
+
+  // SECTION 4 - LINUX
+  { id:25, section:"Section 4 — OS / Linux Basics", sectionNum:4, scenario:false,
+    q:"What is the role of an Operating System (OS)?",
+    opts:["To browse the internet","To manage hardware and software resources of a computer","To design websites","To store data in the cloud"], ans:1 },
+  { id:26, section:null, scenario:false,
+    q:"Which of the following is a Linux command to list all files in a folder?",
+    opts:["dir","show","ls","list"], ans:2 },
+  { id:27, section:null, scenario:false,
+    q:"What does the pwd command do in Linux?",
+    opts:["Changes the password","Prints the current working directory (folder path)","Lists all users","Removes a file"], ans:1 },
+  { id:28, section:null, scenario:true,
+    q:"You are in the terminal and want to move into a folder called projects. Which command do you use?",
+    opts:["open projects","go projects","cd projects","move projects"], ans:2 },
+  { id:29, section:null, scenario:false,
+    q:"Which Linux command is used to create a new folder?",
+    opts:["newdir","touch","create","mkdir"], ans:3 },
+  { id:30, section:null, scenario:false,
+    q:"What does rm do in Linux?",
+    opts:["Renames a file","Removes (deletes) a file","Reads a file","Restores a file"], ans:1 },
+  { id:31, section:null, scenario:true,
+    q:"You want to see what is written inside a file called notes.txt without opening an editor. Which command works?",
+    opts:["open notes.txt","read notes.txt","cat notes.txt","show notes.txt"], ans:2 },
+  { id:32, section:null, scenario:false,
+    q:"Which command is used to copy a file in Linux?",
+    opts:["move","paste","cp","duplicate"], ans:2 },
+  { id:33, section:null, scenario:false,
+    q:"What does sudo mean in Linux?",
+    opts:["A programming language","A file manager","Run a command with administrator (superuser) privileges","A network tool"], ans:2 },
+
+  // SECTION 5 - WEB SERVER
+  { id:34, section:"Section 5 — Web Server Basics", sectionNum:5, scenario:false,
+    q:"What is a web server?",
+    opts:["A very fast computer for gaming","Software or hardware that serves websites to users over the internet","A tool to write HTML","A type of database"], ans:1 },
+  { id:35, section:null, scenario:false,
+    q:"Which of the following is a popular web server software?",
+    opts:["MySQL","Python","Apache / Nginx","Linux"], ans:2 },
+  { id:36, section:null, scenario:false,
+    q:"What does HTTPS mean compared to HTTP?",
+    opts:["It is faster","It uses a different port (8080)","It is HTTP with encryption (SSL/TLS) for security","It only works on mobile"], ans:2 },
+  { id:37, section:null, scenario:true,
+    q:"A user opens a browser and goes to https://myshop.com. The browser sends a request. What does the web server do?",
+    opts:["Downloads a virus scan","Stores the user's data","Processes the request and sends back the webpage (HTML/CSS/JS)","Sends an email to the website owner"], ans:2 },
+  { id:38, section:null, scenario:false,
+    q:"What is the default port for HTTPS?",
+    opts:["80","21","8080","443"], ans:3 },
+  { id:39, section:null, scenario:true,
+    q:"Your website is down. Users are seeing \"502 Bad Gateway\". What does this likely mean?",
+    opts:["The user has no internet","The domain name expired","The web server received a bad response from another server (backend is down)","The HTML has an error"], ans:2 },
+
+  // SECTION 6 - AWS
+  { id:40, section:"Section 6 — Cloud Basics (AWS)", sectionNum:6, scenario:false,
+    q:"What is Cloud Computing in simple terms?",
+    opts:["Storing files on your desktop","Using computers, storage, and services over the internet instead of buying your own hardware","A type of weather forecasting tool","A programming language"], ans:1 },
+  { id:41, section:null, scenario:false,
+    q:"Which company provides the cloud service called AWS?",
+    opts:["Google","Microsoft","Amazon","Apple"], ans:2 },
+  { id:42, section:null, scenario:false,
+    q:"What does EC2 stand for in AWS?",
+    opts:["Extra Computer Connection","Elastic Compute Cloud","Electronic Cloud Computing","Extended Cloud Container"], ans:1 },
+  { id:43, section:null, scenario:false,
+    q:"What is an EC2 instance?",
+    opts:["A file storage bucket","A database service","A virtual server (computer) running in the cloud","A user account in AWS"], ans:2 },
+  { id:44, section:null, scenario:true,
+    q:"Your startup needs a server to host its website but doesn't want to buy physical hardware. Which AWS service should you use?",
+    opts:["S3","IAM","EC2","Route 53"], ans:2 },
+  { id:45, section:null, scenario:false,
+    q:"What does S3 stand for in AWS?",
+    opts:["Super Simple Service","Server Storage Solution","Simple Storage Service","Secure Server System"], ans:2 },
+  { id:46, section:null, scenario:false,
+    q:"What is AWS S3 mainly used for?",
+    opts:["Running virtual machines","Managing user permissions","Storing files, images, videos, and backups in the cloud","Setting up firewalls"], ans:2 },
+  { id:47, section:null, scenario:true,
+    q:"A company wants to store thousands of product images and make them accessible from their website. Which AWS service is the best choice?",
+    opts:["EC2","IAM","S3","Lambda"], ans:2 },
+  { id:48, section:null, scenario:false,
+    q:"What does IAM stand for in AWS?",
+    opts:["Internet Access Management","Identity and Access Management","Internal Admin Module","Integrated Application Manager"], ans:1 },
+  { id:49, section:null, scenario:false,
+    q:"What is the main purpose of AWS IAM?",
+    opts:["To store files securely","To host web applications","To control who can access and do what in your AWS account","To monitor server performance"], ans:2 },
+  { id:50, section:null, scenario:true,
+    q:"Your team has 3 people – a developer, a database admin, and a manager. You want the developer to only access EC2, and the DB admin to only access RDS. Which AWS service helps you set these permissions?",
+    opts:["S3","EC2","CloudWatch","IAM"], ans:3 },
+];
+
+let studentName = '';
+let studentCode = '';
+let timerInterval = null;
+let timeRemaining = EXAM_DURATION;
+let answers = {};
+let examStartTime = null;
+let submitted = false;
+
+function startExam() {
+  const name = document.getElementById('studentName').value.trim();
+  const code = document.getElementById('studentCode').value.trim();
+  const errEl = document.getElementById('loginErr');
+
+  if (!name || !code) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  studentName = name;
+  studentCode = code;
+
+  // Check localStorage for existing session
+  const savedSession = loadSession();
+  if (savedSession) {
+    timeRemaining = savedSession.timeRemaining;
+    answers = savedSession.answers || {};
+    examStartTime = savedSession.startTime;
+  } else {
+    examStartTime = Date.now();
+    timeRemaining = EXAM_DURATION;
+    answers = {};
+    saveSession();
+  }
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('examScreen').style.display = 'block';
+
+  // Set top bar info
+  document.getElementById('topName').textContent = studentName;
+  document.getElementById('topCode').textContent = studentCode;
+  const initials = studentName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('avatarInitials').textContent = initials;
+
+  renderQuestions();
+  restoreAnswers();
+  updateProgress();
+  startTimer();
+}
+
+function saveSession() {
+  try {
+    localStorage.setItem('it_exam_session_' + studentCode, JSON.stringify({
+      studentName, studentCode,
+      timeRemaining,
+      answers,
+      startTime: examStartTime
+    }));
+  } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const code = document.getElementById('studentCode').value.trim();
+    const raw = localStorage.getItem('it_exam_session_' + code);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (d.timeRemaining <= 0) return null;
+    studentName = d.studentName || document.getElementById('studentName').value.trim();
+    return d;
+  } catch(e) { return null; }
+}
+
+function clearSession() {
+  try { localStorage.removeItem('it_exam_session_' + studentCode); } catch(e){}
+}
+
+function renderQuestions() {
+  const container = document.getElementById('examContent');
+  let html = '';
+  let lastSection = null;
+  QUESTIONS.forEach(q => {
+    if (q.section) {
+      html += `<div class="section-header">
+        <div class="section-number">0${q.sectionNum}</div>
+        <div>
+          <div class="section-title">${q.section}</div>
+          <div class="section-sub">Questions ${sectionRange(q.sectionNum)}</div>
+        </div>
+      </div>`;
+    }
+    html += `<div class="q-card" id="qcard-${q.id}">
+      <div class="q-header">
+        <div class="q-num">Q${q.id}</div>
+        <div>
+          ${q.scenario ? '<div class="scenario-tag">📌 Scenario</div>' : ''}
+          <div class="q-text">${escHtml(q.q)}</div>
+        </div>
+      </div>
+      <ul class="options-list">
+        ${q.opts.map((opt, i) => `
+        <li class="option-item" id="opt-${q.id}-${i}" onclick="selectAnswer(${q.id}, ${i})">
+          <input type="radio" name="q${q.id}" id="r${q.id}-${i}" value="${i}">
+          <label class="option-label" for="r${q.id}-${i}">${escHtml(opt)}</label>
+        </li>`).join('')}
+      </ul>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+const sectionRanges = { 1:'1–8', 2:'9–16', 3:'17–24', 4:'25–33', 5:'34–39', 6:'40–50' };
+function sectionRange(n) { return sectionRanges[n] || ''; }
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectAnswer(qid, optIdx) {
+  if (submitted) return;
+  answers[qid] = optIdx;
+  // Update UI
+  for (let i=0;i<4;i++) {
+    const el = document.getElementById('opt-'+qid+'-'+i);
+    if (el) el.classList.remove('selected');
+  }
+  const sel = document.getElementById('opt-'+qid+'-'+optIdx);
+  if (sel) sel.classList.add('selected');
+  const radio = document.getElementById('r'+qid+'-'+optIdx);
+  if (radio) radio.checked = true;
+  const card = document.getElementById('qcard-'+qid);
+  if (card) card.classList.add('answered');
+  updateProgress();
+  saveSession();
+}
+
+function restoreAnswers() {
+  Object.entries(answers).forEach(([qid, optIdx]) => {
+    selectAnswer(parseInt(qid), optIdx);
+  });
+}
+
+function updateProgress() {
+  const count = Object.keys(answers).length;
+  document.getElementById('answeredCount').textContent = count;
+  document.getElementById('progressPill').textContent = count + '/50';
+  document.getElementById('progressBar').style.width = (count/50*100) + '%';
+}
+
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    if (timeRemaining <= 0) {
+      timeRemaining = 0;
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+      autoSubmit();
+      return;
+    }
+    updateTimerDisplay();
+    // Save every 5 seconds
+    if (timeRemaining % 5 === 0) saveSession();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const h = Math.floor(timeRemaining/3600);
+  const m = Math.floor((timeRemaining%3600)/60);
+  const s = timeRemaining % 60;
+  const str = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = str;
+  el.className = 'timer-value';
+  const dot = document.getElementById('timerDot');
+  if (timeRemaining < 600) {
+    el.className = 'timer-value danger';
+    dot.style.background = 'var(--danger)';
+  } else if (timeRemaining < 1800) {
+    el.className = 'timer-value warn';
+    dot.style.background = 'var(--warning)';
+  }
+}
+
+function formatTimeUsed() {
+  const used = EXAM_DURATION - timeRemaining;
+  const h = Math.floor(used/3600);
+  const m = Math.floor((used%3600)/60);
+  const s = used%60;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m ${s}s`;
+}
+
+function confirmSubmit() {
+  const count = Object.keys(answers).length;
+  document.getElementById('modalAnswered').textContent = count;
+  document.getElementById('submitModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('submitModal').classList.remove('show');
+}
+
+function autoSubmit() {
+  document.getElementById('submitModal').classList.remove('show');
+  submitExam();
+}
+
+function submitExam() {
+  if (submitted) return;
+  submitted = true;
+  closeModal();
+  clearInterval(timerInterval);
+
+  // Calculate score
+  let correct = 0;
+  QUESTIONS.forEach(q => {
+    if (answers[q.id] === q.ans) correct++;
+  });
+  const wrong = Object.keys(answers).length - correct;
+  const unanswered = 50 - Object.keys(answers).length;
+  const pct = Math.round((correct/50)*100);
+  const timeUsed = formatTimeUsed();
+
+  // Show result screen
+  document.getElementById('examScreen').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.style.display = 'flex';
+  document.getElementById('finalScore').textContent = correct;
+  document.getElementById('resultName').textContent = studentName;
+  document.getElementById('resultCode').textContent = 'Student Code: ' + studentCode;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong + unanswered;
+  document.getElementById('rTime').textContent = timeUsed;
+
+  // Score ring
+  const circumference = 2 * Math.PI * 58;
+  const offset = circumference - (correct/50)*circumference;
+  const circle = document.getElementById('scoreCircle');
+  circle.style.transition = 'stroke-dashoffset 1.5s ease';
+  setTimeout(() => { circle.setAttribute('stroke-dashoffset', offset); }, 100);
+
+  // Grade
+  let grade, gradeClass;
+  if (correct >= 45) { grade = '🏆 Excellent'; gradeClass = 'excellent'; }
+  else if (correct >= 35) { grade = '👍 Good'; gradeClass = 'good'; }
+  else if (correct >= 25) { grade = '📚 Need Practice'; gradeClass = 'practice'; }
+  else { grade = '🔁 Review Topics'; gradeClass = 'review'; }
+
+  const gb = document.getElementById('gradeBadge');
+  gb.textContent = grade;
+  gb.className = 'grade-badge ' + gradeClass;
+
+  // Save to SheetDB
+  saveToSheet(correct, wrong, unanswered, pct, timeUsed);
+  clearSession();
+}
+
+async function saveToSheet(correct, wrong, unanswered, pct, timeUsed) {
+  const savingEl = document.getElementById('savingMsg');
+  savingEl.textContent = '⏳ Saving your result to records...';
+
+  const submittedAt = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+
+  const payload = {
+    data: [{
+      "Student Name": studentName,
+      "Student Code": studentCode,
+      "Score": correct,
+      "Total Questions": 50,
+      "Correct": correct,
+      "Wrong": wrong,
+      "Unanswered": unanswered,
+      "Percentage": pct + "%",
+      "Time Used": timeUsed,
+      "Submitted At": submittedAt,
+      "Grade": correct >= 45 ? "Excellent" : correct >= 35 ? "Good" : correct >= 25 ? "Need Practice" : "Review Topics"
+    }]
+  };
+
+  try {
+    const res = await fetch(SHEETDB_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      savingEl.textContent = '✅ Result saved successfully to records!';
+      savingEl.style.color = 'var(--success)';
+    } else {
+      throw new Error('HTTP ' + res.status);
+    }
+  } catch(e) {
+    savingEl.textContent = '⚠ Could not save to sheet. Score: ' + correct + '/50 — Please note it down.';
+    savingEl.style.color = 'var(--warning)';
+    console.error('SheetDB error:', e);
+  }
+}
+
+// Warn before unload
+window.addEventListener('beforeunload', (e) => {
+  if (!submitted && Object.keys(answers).length > 0) {
+    saveSession();
+    e.preventDefault();
+    e.returnValue = 'Your exam is in progress. Progress is saved — you can continue after refresh.';
+  }
+});
+</script>
+</body>
+</html>
